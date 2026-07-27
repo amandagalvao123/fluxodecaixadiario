@@ -465,7 +465,7 @@ th{background:rgba(244,246,252,.9)}
     <span class="li"><span class="dot" style="background:#2B4899"></span> Saldo do dia</span>
     <span class="li"><span class="dot" style="background:#F0C36A"></span> Zona do disponível (0 até –disp.)</span>
     <span class="li"><span class="dot" style="background:#E4746F"></span> Zona de remanejo (abaixo do disp.)</span>
-    <span class="li">📍 marcador = HOJE (24/07)</span>
+    <span class="li">📍 marcador = último dia realizado</span>
   </div>
 </section>
 
@@ -656,8 +656,8 @@ th{background:rgba(244,246,252,.9)}
 </div>
 
 <footer>
-  <b>🧮 Metodologia:</b> Entrada projetada = média do dia da semana (base mai–jul/26) × fator semana-do-mês (base jan–jul/26) × fator sazonal do mês (base jun/25–mai/26). Saídas em três cenários — 🟢 Otimista repete o padrão sazonal de saídas de 2025 · 🔴 Conservador mantém a relação atual saídas/entradas (~107%) · 🟡 Realista é a média dos dois. <b>Jul e a 1ª semana de ago</b> usam os valores já programados pela equipe. <b>10/08→31/10:</b> espelho semanal mar–jun/26 — média de entradas e saídas por semana do mês nos últimos 4 meses fechados (sem 1: E 1,24/S 1,53 mi · sem 2: 1,19/1,23 · sem 3: 1,28/1,25 · sem 4: 1,25/1,18), pois 2025 estava defasado e jan/26 foi atípico. <b>Dez:</b> base 2026 + efeito-dezembro/25 medido em reais (E +2,27 mi · S +1,94 mi, o 13º e o Natal), distribuído no formato semanal de dez/25 — sem o exagero do fator percentual. Feriados bancários rolam o fluxo para o dia útil seguinte. De 03/08 a 31/10, cada dia espelha a média do mesmo dia-da-semana × semana-do-mês de mai–jul/26 (2025 estava defasado e não entra). Dezembro espelha os totais realizados de dez/25 (E R$ 8.045.131 · S R$ 6.389.237), distribuídos pelo padrão semanal atual. Novembro mantém o fator herdado de nov/25 (13º, 1ª parcela). Ponto de partida: saldo líquido s/ limites do fluxo em 24/07/2026 (editável no topo, junto com o limite).<br>
-  <b>📁 Fontes:</b> Saldo___Fluxo.xlsx (fluxo vivo 29/06→24/07 + extrato) e FLUXO_DE_CAIXA_-_GRUPO_LONDRINO.xlsx (histórico diário 09/06/25→30/06/26). Projeção estatística — não substitui o contas a pagar real da semana. · sistema x12-vidro · loader l10 · ragga gestão & educação 💙
+  <b>🧮 Metodologia:</b> Entrada projetada = média do dia da semana (base mai–jul/26) × fator semana-do-mês (base jan–jul/26) × fator sazonal do mês (base jun/25–mai/26). Saídas em três cenários — 🟢 Otimista repete o padrão sazonal de saídas de 2025 · 🔴 Conservador mantém a relação atual saídas/entradas (~107%) · 🟡 Realista é a média dos dois. <b>Jul e a 1ª semana de ago</b> usam os valores já programados pela equipe. <b>10/08→31/10:</b> espelho semanal mar–jun/26 — média de entradas e saídas por semana do mês nos últimos 4 meses fechados (sem 1: E 1,24/S 1,53 mi · sem 2: 1,19/1,23 · sem 3: 1,28/1,25 · sem 4: 1,25/1,18), pois 2025 estava defasado e jan/26 foi atípico. <b>Dez:</b> base 2026 + efeito-dezembro/25 medido em reais (E +2,27 mi · S +1,94 mi, o 13º e o Natal), distribuído no formato semanal de dez/25 — sem o exagero do fator percentual. Feriados bancários rolam o fluxo para o dia útil seguinte. <b>Nov</b> mantém o motor sazonal (perfil por dia-da-semana × fator ×1,13 herdado de nov/25, 1ª parcela do 13º). Ponto de partida: saldo líquido s/ limites do último dia realizado (avança sozinho conforme a Atualização Diária; editável no topo, junto com o limite).<br>
+  <b>📁 Fontes:</b> Saldo___Fluxo.xlsx (fluxo vivo, alimentado pela Atualização Diária) e FLUXO_DE_CAIXA_-_GRUPO_LONDRINO.xlsx (histórico diário 09/06/25→30/06/26). Projeção estatística — não substitui o contas a pagar real da semana. · sistema x12-vidro · loader l10 · ragga gestão & educação 💙
 </footer>
 
 </div>
@@ -818,9 +818,9 @@ function renderDeck(A){
   const nLim=bizP.filter(o=>o.sf<0&&o.sf+LIM>=0).length, nRem=bizP.filter(o=>o.sf+LIM<0).length;
   const res=A.tot.e-A.tot.s, cob=A.tot.s?A.tot.e/A.tot.s*100:0;
   const cards=[
-    {acc:'#2B4899',k:'🏦 Saldo Atual (24/07)',v:fmtC(SALDO0),cls:'',d:'líquido, sem limites',sp:spark(SER.R.map(r=>r.sf),'#2B4899',{zero:1})},
-    {acc:'#0F8A57',k:'📈 Entradas Projetadas',v:fmtC(A.tot.e),cls:'pos',d:'27/07 → 31/12',sp:spark(wkP.map(w=>w.e),'#0F8A57')},
-    {acc:'#D45D59',k:'📉 Saídas Projetadas',v:fmtC(A.tot.s),cls:'neg',d:'27/07 → 31/12',sp:spark(wkP.map(w=>w.s),'#C0322F')},
+    {acc:'#2B4899',k:'🏦 Saldo Atual ('+dLabel(SER.R[SER.R.length-1].d)+')',v:fmtC(SALDO0),cls:'',d:'líquido, sem limites',sp:spark(SER.R.map(r=>r.sf),'#2B4899',{zero:1})},
+    {acc:'#0F8A57',k:'📈 Entradas Projetadas',v:fmtC(A.tot.e),cls:'pos',d:dLabel(SER.P[0].d)+' → 31/12',sp:spark(wkP.map(w=>w.e),'#0F8A57')},
+    {acc:'#D45D59',k:'📉 Saídas Projetadas',v:fmtC(A.tot.s),cls:'neg',d:dLabel(SER.P[0].d)+' → 31/12',sp:spark(wkP.map(w=>w.s),'#C0322F')},
     {acc:'#D9A21B',k:'🏁 Saldo Final Dez/26',v:fmtC(A.fim),cls:A.fim<0?'neg':'pos',d:'com disp.: '+fmtC(A.fim+LIM)+' · '+(res>=0?'+':'')+fmtC(res),sp:spark(wkP.map(w=>w.sf),'#D9A21B',{zero:1})},
     {acc:'#C0322F',k:'🚨 Pior Momento',v:fmtC(A.min.sf),cls:'neg',d:'📆 '+dLabel(A.min.d)+' · c/ disp. '+fmtC(A.min.sf+LIM),sp:spark(bizP.filter(p=>p.d>='2026-11-01').map(p=>p.sf),'#C0322F',{zero:1})},
     {acc:'#E0A62F',k:'⚠️ Dias Críticos',v:nLim+' 🟡 · '+nRem+' 🔴',cls:'',d:'disp. cobre · pra remanejar',sp:spark(wkP.map(w=>(w.minSf===Infinity?w.sf:w.minSf)+LIM),'#E0A62F',{zero:1})},
@@ -1047,7 +1047,7 @@ function renderWA(A){
   if(!A.wins.length) rem='✅ *Nenhum remanejo de boleto necessário* — menor ressalva '+fmtC(A.min.sf+LIM)+' em '+dLabel(A.min.d);
   else rem='🚨 *Remanejar boletos ('+A.wins.length+' janela'+(A.wins.length>1?'s':'')+')*\n'+
     A.wins.map(w=>'• '+dLabel(w.ini)+'→'+dLabel(w.fim)+': falta *'+fmtC(Math.abs(w.minSl))+'* além do limite').join('\n');
-  const txt='💰 *FLUXO DE CAIXA — GRUPO LONDRINO*\n🏢 ragga gestão & educação\n📅 Atualizado 24/07/2026 · projeção até 31/12/2026\nCenário: '+c.emoji+' *'+c.nome+'*\n\n'+
+  const txt='💰 *FLUXO DE CAIXA — GRUPO LONDRINO*\n🏢 ragga gestão & educação\n📅 Atualizado '+SER.R[SER.R.length-1].d.split('-').reverse().join('/')+' · projeção até 31/12/2026\nCenário: '+c.emoji+' *'+c.nome+'*\n\n'+
 '🏦 Saldo atual: *'+fmtC(SALDO0)+'*\n🛟 Limite: total '+fmtC(LIMT)+' · em uso '+fmtC(LIMU)+' · *disponível '+fmtC(LIM)+'*\n'+
 '📈 Entradas projetadas (27/07→31/12): *'+fmtC(A.tot.e)+'*\n📉 Saídas projetadas: *'+fmtC(A.tot.s)+'*\n'+
 '🏁 Saldo final Dez/26: *'+fmtC(A.fim)+'* · com limite: *'+fmtC(A.fim+LIM)+'*\n'+
